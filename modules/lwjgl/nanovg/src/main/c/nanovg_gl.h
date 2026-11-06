@@ -54,8 +54,15 @@ enum NVGimageFlagsGL {
 #include <math.h>
 #include "nanovg.h"
 #include <jni.h>
-#include "glx/lookup.h"
-#include "gles/gles.h"
+
+// Đã loại bỏ các include không tồn tại: "glx/lookup.h" và "gles/gles.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void* glXGetProcAddress(const char* name);
+#ifdef __cplusplus
+}
+#endif
 
 typedef void GLvoid;
 typedef unsigned char GLboolean;
