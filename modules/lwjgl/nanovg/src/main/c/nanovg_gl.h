@@ -304,10 +304,10 @@ typedef void (APIENTRY *glVertexAttribPointerPROC) (GLuint index, GLint size, GL
 #define glVertexAttribPointer gl->VertexAttribPointer
 
 enum GLNVGuniformLoc {
-	GLNVG_LOC_VIEWSIZE,
-	GLNVG_LOC_TEX,
-	GLNVG_LOC_FRAG,
-	GLNVG_MAX_LOCS
+    GLNVG_LOC_VIEWSIZE,
+    GLNVG_LOC_TEX,
+    GLNVG_LOC_FRAG,
+    GLNVG_MAX_LOCS
 };
 
 enum GLNVGshaderType {
