@@ -1,20 +1,3 @@
-//
-// Copyright (c) 2009-2013 Mikko Mononen memon@inside.org
-//
-// This software is provided 'as-is', without any express or implied
-// warranty.  In no event will the authors be held liable for any damages
-// arising from the use of this software.
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would be
-//    appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-//    misrepresented as being the original software.
-// 3. This notice may not be removed or altered from any source distribution.
-//
 #ifndef NANOVG_GL_H
 #define NANOVG_GL_H
 
@@ -22,15 +5,9 @@
 extern "C" {
 #endif
 
-// Create flags
-
 enum NVGcreateFlags {
-	// Flag indicating if geometry based anti-aliasing is used (may not be needed when using MSAA).
 	NVG_ANTIALIAS 		= 1<<0,
-	// Flag indicating if strokes should be drawn using stencil buffer. The rendering will be a little
-	// slower, but path overlaps (i.e. self-intersecting or sharp turns) will be drawn just once.
 	NVG_STENCIL_STROKES	= 1<<1,
-	// Flag indicating that additional debug checks are done.
 	NVG_DEBUG 			= 1<<2,
 };
 
@@ -59,19 +36,15 @@ enum NVGcreateFlags {
 
 #define NANOVG_GL_USE_STATE_FILTER (1)
 
-// Creates NanoVG contexts for different OpenGL (ES) versions.
-// Flags should be combination of the create flags above.
-
-// These are additional flags on top of NVGimageFlags.
 enum NVGimageFlagsGL {
-	NVG_IMAGE_NODELETE			= 1<<16,	// Do not delete GL texture handle.
+	NVG_IMAGE_NODELETE			= 1<<16,
 };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* NANOVG_GL_H */
+#endif 
 
 #ifdef NANOVG_GL_IMPLEMENTATION
 
@@ -81,8 +54,8 @@ enum NVGimageFlagsGL {
 #include <math.h>
 #include "nanovg.h"
 #include <jni.h>
-
-// ---------- LWJGL --------------
+#include "glx/lookup.h"
+#include "gles/gles.h"
 
 typedef void GLvoid;
 typedef unsigned char GLboolean;
@@ -323,8 +296,6 @@ typedef void (APIENTRY *glVertexAttribPointerPROC) (GLuint index, GLint size, GL
 #define glUseProgram gl->UseProgram
 #define glVertexAttribPointer gl->VertexAttribPointer
 
-// ---------- LWJGL --------------
-
 enum GLNVGuniformLoc {
 	GLNVG_LOC_VIEWSIZE,
 	GLNVG_LOC_TEX,
@@ -401,7 +372,7 @@ typedef struct GLNVGpath GLNVGpath;
 
 struct GLNVGfragUniforms {
 	#if NANOVG_GL_USE_UNIFORMBUFFER
-		float scissorMat[12]; // matrices are actually 3 vec4s
+		float scissorMat[12];
 		float paintMat[12];
 		struct NVGcolor innerCol;
 		struct NVGcolor outerCol;
@@ -415,12 +386,10 @@ struct GLNVGfragUniforms {
 		int texType;
 		int type;
 	#else
-		// note: after modifying layout or size of uniform array,
-		// don't forget to also update the fragment shader source!
 		#define NANOVG_GL_UNIFORMARRAY_SIZE 11
 		union {
 			struct {
-				float scissorMat[12]; // matrices are actually 3 vec4s
+				float scissorMat[12];
 				float paintMat[12];
 				struct NVGcolor innerCol;
 				struct NVGcolor outerCol;
@@ -457,7 +426,6 @@ struct GLNVGcontext {
 	int fragSize;
 	int flags;
 
-	// Per frame buffers
 	GLNVGcall* calls;
 	int ccalls;
 	int ncalls;
@@ -471,7 +439,6 @@ struct GLNVGcontext {
 	int cuniforms;
 	int nuniforms;
 
-	// cached state
 	#if NANOVG_GL_USE_STATE_FILTER
 	GLuint boundTexture;
 	GLuint stencilMask;
@@ -483,7 +450,6 @@ struct GLNVGcontext {
 
 	int dummyTex;
 
-	// Function pointers
 	glActiveTexturePROC ActiveTexture;
 	glAttachShaderPROC AttachShader;
 	glBindAttribLocationPROC BindAttribLocation;
@@ -544,7 +510,7 @@ struct GLNVGcontext {
 	glStencilOpSeparatePROC StencilOpSeparate;
 	glTexImage2DPROC TexImage2D;
 	glTexParameteriPROC TexParameteri;
-	glTexSubImage2DPROC TexSubImage2D;
+	glTexSubImage2DPROC glTexSubImage2D;
 	glUniform1iPROC Uniform1i;
 	glUniform2fvPROC Uniform2fv;
 	glUniform4fvPROC Uniform4fv;
@@ -610,6 +576,7 @@ static void glnvg__stencilFunc(GLNVGcontext* gl, GLenum func, GLint ref, GLuint 
 	glStencilFunc(func, ref, mask);
 #endif
 }
+
 static void glnvg__blendFuncSeparate(GLNVGcontext* gl, const GLNVGblend* blend)
 {
 #if NANOVG_GL_USE_STATE_FILTER
@@ -640,7 +607,7 @@ static GLNVGtexture* glnvg__allocTexture(GLNVGcontext* gl)
 	if (tex == NULL) {
 		if (gl->ntextures+1 > gl->ctextures) {
 			GLNVGtexture* textures;
-			int ctextures = glnvg__maxi(gl->ntextures+1, 4) +  gl->ctextures/2; // 1.5x Overallocate
+			int ctextures = glnvg__maxi(gl->ntextures+1, 4) +  gl->ctextures/2;
 			textures = (GLNVGtexture*)NVG_REALLOC(gl->textures, sizeof(GLNVGtexture)*ctextures);
 			if (textures == NULL) return NULL;
 			gl->textures = textures;
@@ -790,8 +757,6 @@ static int glnvg__renderCreate(void* uptr)
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
 	int align = 4;
 
-	// TODO: mediump float may not be enough for GLES2 in iOS.
-	// see the following discussion: https://github.com/memononen/nanovg/issues/46
 	static const char* shaderHeader =
 #if defined NANOVG_GL2
 		"#define NANOVG_GL2 1\n"
@@ -858,14 +823,14 @@ static int glnvg__renderCreate(void* uptr)
 		"		int texType;\n"
 		"		int type;\n"
 		"	};\n"
-		"#else\n" // NANOVG_GL3 && !USE_UNIFORMBUFFER
+		"#else\n"
 		"	uniform vec4 frag[UNIFORMARRAY_SIZE];\n"
 		"#endif\n"
 		"	uniform sampler2D tex;\n"
 		"	in vec2 ftcoord;\n"
 		"	in vec2 fpos;\n"
 		"	out vec4 outColor;\n"
-		"#else\n" // !NANOVG_GL3
+		"#else\n"
 		"	uniform vec4 frag[UNIFORMARRAY_SIZE];\n"
 		"	uniform sampler2D tex;\n"
 		"	varying vec2 ftcoord;\n"
@@ -893,14 +858,12 @@ static int glnvg__renderCreate(void* uptr)
 		"	return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rad;\n"
 		"}\n"
 		"\n"
-		"// Scissoring\n"
 		"float scissorMask(vec2 p) {\n"
 		"	vec2 sc = (abs((scissorMat * vec3(p,1.0)).xy) - scissorExt);\n"
 		"	sc = vec2(0.5,0.5) - sc * scissorScale;\n"
 		"	return clamp(sc.x,0.0,1.0) * clamp(sc.y,0.0,1.0);\n"
 		"}\n"
 		"#ifdef EDGE_AA\n"
-		"// Stroke - from [0..1] to clipped pyramid, where the slope is 1px.\n"
 		"float strokeMask() {\n"
 		"	return min(1.0, (1.0-abs(ftcoord.x*2.0-1.0))*strokeMult) * min(1.0, ftcoord.y);\n"
 		"}\n"
@@ -914,16 +877,13 @@ static int glnvg__renderCreate(void* uptr)
 		"#else\n"
 		"	float strokeAlpha = 1.0;\n"
 		"#endif\n"
-		"	if (type == 0) {			// Gradient\n"
-		"		// Calculate gradient color using box gradient\n"
+		"	if (type == 0) {\n"
 		"		vec2 pt = (paintMat * vec3(fpos,1.0)).xy;\n"
 		"		float d = clamp((sdroundrect(pt, extent, radius) + feather*0.5) / feather, 0.0, 1.0);\n"
 		"		vec4 color = mix(innerCol,outerCol,d);\n"
-		"		// Combine alpha\n"
 		"		color *= strokeAlpha * scissor;\n"
 		"		result = color;\n"
-		"	} else if (type == 1) {		// Image\n"
-		"		// Calculate color fron texture\n"
+		"	} else if (type == 1) {\n"
 		"		vec2 pt = (paintMat * vec3(fpos,1.0)).xy / extent;\n"
 		"#ifdef NANOVG_GL3\n"
 		"		vec4 color = texture(tex, pt);\n"
@@ -932,14 +892,12 @@ static int glnvg__renderCreate(void* uptr)
 		"#endif\n"
 		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);"
 		"		if (texType == 2) color = vec4(color.x);"
-		"		// Apply color tint and alpha.\n"
 		"		color *= innerCol;\n"
-		"		// Combine alpha\n"
 		"		color *= strokeAlpha * scissor;\n"
 		"		result = color;\n"
-		"	} else if (type == 2) {		// Stencil fill\n"
+		"	} else if (type == 2) {\n"
 		"		result = vec4(1,1,1,1);\n"
-		"	} else if (type == 3) {		// Textured tris\n"
+		"	} else if (type == 3) {\n"
 		"#ifdef NANOVG_GL3\n"
 		"		vec4 color = texture(tex, ftcoord);\n"
 		"#else\n"
@@ -979,23 +937,19 @@ static int glnvg__renderCreate(void* uptr)
 	glnvg__checkError(gl, "uniform locations");
 	glnvg__getUniforms(gl, &gl->shader);
 
-	// Create dynamic vertex array
 #if defined NANOVG_GL3
 	glGenVertexArrays(1, &gl->vertArr);
 #endif
 	glGenBuffers(1, &gl->vertBuf);
 
 #if NANOVG_GL_USE_UNIFORMBUFFER
-	// Create UBOs
 	glUniformBlockBinding(gl->shader.prog, gl->shader.loc[GLNVG_LOC_FRAG], GLNVG_FRAG_BINDING);
 	glGenBuffers(1, &gl->fragBuf);
 	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &align);
 #endif
 	gl->fragSize = sizeof(GLNVGfragUniforms) + align - sizeof(GLNVGfragUniforms) % align;
 
-	// Some platforms does not allow to have samples to unset textures.
-    // Create empty one which is bound when there's no texture specified.
-    gl->dummyTex = glnvg__renderCreateTexture(gl, NVG_TEXTURE_ALPHA, 1, 1, 0, NULL);
+	gl->dummyTex = glnvg__renderCreateTexture(gl, NVG_TEXTURE_ALPHA, 1, 1, 0, NULL);
 
 	glnvg__checkError(gl, "create done");
 
@@ -1012,16 +966,11 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 	if (tex == NULL) return 0;
 
 #ifdef NANOVG_GLES2
-	// Check for non-power of 2.
 	if (glnvg__nearestPow2(w) != (unsigned int)w || glnvg__nearestPow2(h) != (unsigned int)h) {
-		// No repeat
 		if ((imageFlags & NVG_IMAGE_REPEATX) != 0 || (imageFlags & NVG_IMAGE_REPEATY) != 0) {
-			printf("Repeat X/Y is not supported for non power-of-two textures (%d x %d)\n", w, h);
 			imageFlags &= ~(NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
 		}
-		// No mips.
 		if (imageFlags & NVG_IMAGE_GENERATE_MIPMAPS) {
-			printf("Mip-maps is not support for non power-of-two textures (%d x %d)\n", w, h);
 			imageFlags &= ~NVG_IMAGE_GENERATE_MIPMAPS;
 		}
 	}
@@ -1042,7 +991,6 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 #endif
 
 #if defined (NANOVG_GL2)
-	// GL 1.4 and later has support for generating mipmaps using a tex parameter.
 	if (imageFlags & NVG_IMAGE_GENERATE_MIPMAPS) {
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	}
@@ -1096,7 +1044,6 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 	glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
 #endif
 
-	// The new way to build mipmaps on GLES and GL3
 #if !defined(NANOVG_GL2)
 	if (imageFlags & NVG_IMAGE_GENERATE_MIPMAPS) {
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -1108,7 +1055,6 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 
 	return tex->id;
 }
-
 
 static int glnvg__renderDeleteTexture(void* uptr, int image)
 {
@@ -1131,7 +1077,6 @@ static int glnvg__renderUpdateTexture(void* uptr, int image, int x, int y, int w
 	glPixelStorei(GL_UNPACK_SKIP_PIXELS, x);
 	glPixelStorei(GL_UNPACK_SKIP_ROWS, y);
 #else
-	// No support for all of skip, need to update a whole row at a time.
 	if (tex->type == NVG_TEXTURE_RGBA)
 		data += y*tex->width*4;
 	else
@@ -1253,7 +1198,6 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 		else
 			frag->texType = 2.0f;
 		#endif
-//		printf("frag->texType = %d\n", frag->texType);
 	} else {
 		frag->type = NSVG_SHADER_FILLGRAD;
 		frag->radius = paint->radius;
@@ -1281,7 +1225,6 @@ static void glnvg__setUniforms(GLNVGcontext* gl, int uniformOffset, int image)
 	if (image != 0) {
         tex = glnvg__findTexture(gl, image);
     }
-    // If no image is set, use empty texture
     if (tex == NULL) {
         tex = glnvg__findTexture(gl, gl->dummyTex);
     }
@@ -1302,13 +1245,11 @@ static void glnvg__fill(GLNVGcontext* gl, GLNVGcall* call)
 	GLNVGpath* paths = &gl->paths[call->pathOffset];
 	int i, npaths = call->pathCount;
 
-	// Draw shapes
 	glEnable(GL_STENCIL_TEST);
 	glnvg__stencilMask(gl, 0xff);
 	glnvg__stencilFunc(gl, GL_ALWAYS, 0, 0xff);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-	// set bindpoint for solid loc
 	glnvg__setUniforms(gl, call->uniformOffset, 0);
 	glnvg__checkError(gl, "fill simple");
 
@@ -1319,7 +1260,6 @@ static void glnvg__fill(GLNVGcontext* gl, GLNVGcall* call)
 		glDrawArrays(GL_TRIANGLE_FAN, paths[i].fillOffset, paths[i].fillCount);
 	glEnable(GL_CULL_FACE);
 
-	// Draw anti-aliased pixels
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	glnvg__setUniforms(gl, call->uniformOffset + gl->fragSize, call->image);
@@ -1328,12 +1268,10 @@ static void glnvg__fill(GLNVGcontext* gl, GLNVGcall* call)
 	if (gl->flags & NVG_ANTIALIAS) {
 		glnvg__stencilFunc(gl, GL_EQUAL, 0x00, 0xff);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		// Draw fringes
 		for (i = 0; i < npaths; i++)
 			glDrawArrays(GL_TRIANGLE_STRIP, paths[i].strokeOffset, paths[i].strokeCount);
 	}
 
-	// Draw fill
 	glnvg__stencilFunc(gl, GL_NOTEQUAL, 0x0, 0xff);
 	glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
 	glDrawArrays(GL_TRIANGLE_STRIP, call->triangleOffset, call->triangleCount);
@@ -1351,7 +1289,6 @@ static void glnvg__convexFill(GLNVGcontext* gl, GLNVGcall* call)
 
 	for (i = 0; i < npaths; i++) {
 		glDrawArrays(GL_TRIANGLE_FAN, paths[i].fillOffset, paths[i].fillCount);
-		// Draw fringes
 		if (paths[i].strokeCount > 0) {
 			glDrawArrays(GL_TRIANGLE_STRIP, paths[i].strokeOffset, paths[i].strokeCount);
 		}
@@ -1368,7 +1305,6 @@ static void glnvg__stroke(GLNVGcontext* gl, GLNVGcall* call)
 		glEnable(GL_STENCIL_TEST);
 		glnvg__stencilMask(gl, 0xff);
 
-		// Fill the stroke base without overlap
 		glnvg__stencilFunc(gl, GL_EQUAL, 0x0, 0xff);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 		glnvg__setUniforms(gl, call->uniformOffset + gl->fragSize, call->image);
@@ -1376,14 +1312,12 @@ static void glnvg__stroke(GLNVGcontext* gl, GLNVGcall* call)
 		for (i = 0; i < npaths; i++)
 			glDrawArrays(GL_TRIANGLE_STRIP, paths[i].strokeOffset, paths[i].strokeCount);
 
-		// Draw anti-aliased pixels.
 		glnvg__setUniforms(gl, call->uniformOffset, call->image);
 		glnvg__stencilFunc(gl, GL_EQUAL, 0x00, 0xff);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		for (i = 0; i < npaths; i++)
 			glDrawArrays(GL_TRIANGLE_STRIP, paths[i].strokeOffset, paths[i].strokeCount);
 
-		// Clear stencil buffer.
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glnvg__stencilFunc(gl, GL_ALWAYS, 0x0, 0xff);
 		glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
@@ -1394,12 +1328,9 @@ static void glnvg__stroke(GLNVGcontext* gl, GLNVGcall* call)
 
 		glDisable(GL_STENCIL_TEST);
 
-//		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, strokeWidth, fringe, 1.0f - 0.5f/255.0f);
-
 	} else {
 		glnvg__setUniforms(gl, call->uniformOffset, call->image);
 		glnvg__checkError(gl, "stroke fill");
-		// Draw Strokes
 		for (i = 0; i < npaths; i++)
 			glDrawArrays(GL_TRIANGLE_STRIP, paths[i].strokeOffset, paths[i].strokeCount);
 	}
@@ -1472,7 +1403,6 @@ static void glnvg__renderFlush(void* uptr)
 
 	if (gl->ncalls > 0) {
 
-		// Setup require GL state.
 		glUseProgram(gl->shader.prog);
 
 		glEnable(GL_CULL_FACE);
@@ -1500,12 +1430,10 @@ static void glnvg__renderFlush(void* uptr)
 		#endif
 
 #if NANOVG_GL_USE_UNIFORMBUFFER
-		// Upload ubo for frag shaders
 		glBindBuffer(GL_UNIFORM_BUFFER, gl->fragBuf);
 		glBufferData(GL_UNIFORM_BUFFER, gl->nuniforms * gl->fragSize, gl->uniforms, GL_STREAM_DRAW);
 #endif
 
-		// Upload vertex data
 #if defined NANOVG_GL3
 		glBindVertexArray(gl->vertArr);
 #endif
@@ -1516,7 +1444,6 @@ static void glnvg__renderFlush(void* uptr)
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(NVGvertex), (const GLvoid*)(size_t)0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(NVGvertex), (const GLvoid*)(0 + 2*sizeof(float)));
 
-		// Set view and texture just once per frame.
 		glUniform1i(gl->shader.loc[GLNVG_LOC_TEX], 0);
 		glUniform2fv(gl->shader.loc[GLNVG_LOC_VIEWSIZE], 1, gl->view);
 
@@ -1543,12 +1470,11 @@ static void glnvg__renderFlush(void* uptr)
 		glBindVertexArray(0);
 #endif
 		glDisable(GL_CULL_FACE);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glUseProgram(0);
 		glnvg__bindTexture(gl, 0);
 	}
 
-	// Reset calls
 	gl->nverts = 0;
 	gl->npaths = 0;
 	gl->ncalls = 0;
@@ -1570,7 +1496,7 @@ static GLNVGcall* glnvg__allocCall(GLNVGcontext* gl)
 	GLNVGcall* ret = NULL;
 	if (gl->ncalls+1 > gl->ccalls) {
 		GLNVGcall* calls;
-		int ccalls = glnvg__maxi(gl->ncalls+1, 128) + gl->ccalls/2; // 1.5x Overallocate
+		int ccalls = glnvg__maxi(gl->ncalls+1, 128) + gl->ccalls/2;
 		calls = (GLNVGcall*)NVG_REALLOC(gl->calls, sizeof(GLNVGcall) * ccalls);
 		if (calls == NULL) return NULL;
 		gl->calls = calls;
@@ -1586,7 +1512,7 @@ static int glnvg__allocPaths(GLNVGcontext* gl, int n)
 	int ret = 0;
 	if (gl->npaths+n > gl->cpaths) {
 		GLNVGpath* paths;
-		int cpaths = glnvg__maxi(gl->npaths + n, 128) + gl->cpaths/2; // 1.5x Overallocate
+		int cpaths = glnvg__maxi(gl->npaths + n, 128) + gl->cpaths/2;
 		paths = (GLNVGpath*)NVG_REALLOC(gl->paths, sizeof(GLNVGpath) * cpaths);
 		if (paths == NULL) return -1;
 		gl->paths = paths;
@@ -1602,7 +1528,7 @@ static int glnvg__allocVerts(GLNVGcontext* gl, int n)
 	int ret = 0;
 	if (gl->nverts+n > gl->cverts) {
 		NVGvertex* verts;
-		int cverts = glnvg__maxi(gl->nverts + n, 4096) + gl->cverts/2; // 1.5x Overallocate
+		int cverts = glnvg__maxi(gl->nverts + n, 4096) + gl->cverts/2;
 		verts = (NVGvertex*)NVG_REALLOC(gl->verts, sizeof(NVGvertex) * cverts);
 		if (verts == NULL) return -1;
 		gl->verts = verts;
@@ -1618,7 +1544,7 @@ static int glnvg__allocFragUniforms(GLNVGcontext* gl, int n)
 	int ret = 0, structSize = gl->fragSize;
 	if (gl->nuniforms+n > gl->cuniforms) {
 		unsigned char* uniforms;
-		int cuniforms = glnvg__maxi(gl->nuniforms+n, 128) + gl->cuniforms/2; // 1.5x Overallocate
+		int cuniforms = glnvg__maxi(gl->nuniforms+n, 128) + gl->cuniforms/2;
 		uniforms = (unsigned char*)NVG_REALLOC(gl->uniforms, structSize * cuniforms);
 		if (uniforms == NULL) return -1;
 		gl->uniforms = uniforms;
@@ -1664,10 +1590,9 @@ static void glnvg__renderFill(void* uptr, NVGpaint* paint, NVGcompositeOperation
 	if (npaths == 1 && paths[0].convex)
 	{
 		call->type = GLNVG_CONVEXFILL;
-		call->triangleCount = 0;	// Bounding box fill quad not needed for convex fill
+		call->triangleCount = 0;
 	}
 
-	// Allocate vertices for all the paths.
 	maxverts = glnvg__maxVertCount(paths, npaths) + call->triangleCount;
 	offset = glnvg__allocVerts(gl, maxverts);
 	if (offset == -1) goto error;
@@ -1690,9 +1615,7 @@ static void glnvg__renderFill(void* uptr, NVGpaint* paint, NVGcompositeOperation
 		}
 	}
 
-	// Setup uniforms for draw calls
 	if (call->type == GLNVG_FILL) {
-		// Quad
 		call->triangleOffset = offset;
 		quad = &gl->verts[call->triangleOffset];
 		glnvg__vset(&quad[0], bounds[2], bounds[3], 0.5f, 1.0f);
@@ -1702,25 +1625,20 @@ static void glnvg__renderFill(void* uptr, NVGpaint* paint, NVGcompositeOperation
 
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 2);
 		if (call->uniformOffset == -1) goto error;
-		// Simple shader for stencil
 		frag = nvg__fragUniformPtr(gl, call->uniformOffset);
 		memset(frag, 0, sizeof(*frag));
 		frag->strokeThr = -1.0f;
 		frag->type = NSVG_SHADER_SIMPLE;
-		// Fill shader
 		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, fringe, fringe, -1.0f);
 	} else {
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 		if (call->uniformOffset == -1) goto error;
-		// Fill shader
 		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, fringe, fringe, -1.0f);
 	}
 
 	return;
 
 error:
-	// We get here if call alloc was ok, but something else is not.
-	// Roll back the last call to prevent drawing it.
 	if (gl->ncalls > 0) gl->ncalls--;
 }
 
@@ -1740,7 +1658,6 @@ static void glnvg__renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperati
 	call->image = paint->image;
 	call->blendFunc = glnvg__blendCompositeOperation(compositeOperation);
 
-	// Allocate vertices for all the paths.
 	maxverts = glnvg__maxVertCount(paths, npaths);
 	offset = glnvg__allocVerts(gl, maxverts);
 	if (offset == -1) goto error;
@@ -1758,7 +1675,6 @@ static void glnvg__renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperati
 	}
 
 	if (gl->flags & NVG_STENCIL_STROKES) {
-		// Fill shader
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 2);
 		if (call->uniformOffset == -1) goto error;
 
@@ -1766,7 +1682,6 @@ static void glnvg__renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperati
 		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, strokeWidth, fringe, 1.0f - 0.5f/255.0f);
 
 	} else {
-		// Fill shader
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 		if (call->uniformOffset == -1) goto error;
 		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, strokeWidth, fringe, -1.0f);
@@ -1775,8 +1690,6 @@ static void glnvg__renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperati
 	return;
 
 error:
-	// We get here if call alloc was ok, but something else is not.
-	// Roll back the last call to prevent drawing it.
 	if (gl->ncalls > 0) gl->ncalls--;
 }
 
@@ -1793,14 +1706,12 @@ static void glnvg__renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOper
 	call->image = paint->image;
 	call->blendFunc = glnvg__blendCompositeOperation(compositeOperation);
 
-	// Allocate vertices for all the paths.
 	call->triangleOffset = glnvg__allocVerts(gl, nverts);
 	if (call->triangleOffset == -1) goto error;
 	call->triangleCount = nverts;
 
 	memcpy(&gl->verts[call->triangleOffset], verts, sizeof(NVGvertex) * nverts);
 
-	// Fill shader
 	call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 	if (call->uniformOffset == -1) goto error;
 	frag = nvg__fragUniformPtr(gl, call->uniformOffset);
@@ -1810,8 +1721,6 @@ static void glnvg__renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOper
 	return;
 
 error:
-	// We get here if call alloc was ok, but something else is not.
-	// Roll back the last call to prevent drawing it.
 	if (gl->ncalls > 0) gl->ncalls--;
 }
 
@@ -1848,21 +1757,81 @@ static void glnvg__renderDelete(void* uptr)
 	NVG_FREE(gl);
 }
 
-
 NVGcontext* EXT(nvgCreate)(JNIEnv* env, int flags)
 {
-	jclass NanoVGGLConfig = (*env)->FindClass(env, "org/lwjgl/nanovg/NanoVGGLConfig");
-	jmethodID config = (*env)->GetStaticMethodID(env, NanoVGGLConfig, CONFIG_METHOD, "(J)V");
-
 	NVGparams params;
 	NVGcontext* ctx = NULL;
 	GLNVGcontext* gl = (GLNVGcontext*)NVG_MALLOC(sizeof(GLNVGcontext));
 	if (gl == NULL) goto error;
 	memset(gl, 0, sizeof(GLNVGcontext));
 
-	(*env)->CallStaticVoidMethod(env, NanoVGGLConfig, config, (jlong)(uintptr_t)&gl->ActiveTexture);
-	if ( (*env)->ExceptionCheck(env) )
-		goto error;
+	gl->ActiveTexture = (glActiveTexturePROC)glXGetProcAddress("glActiveTexture");
+	gl->AttachShader = (glAttachShaderPROC)glXGetProcAddress("glAttachShader");
+	gl->BindAttribLocation = (glBindAttribLocationPROC)glXGetProcAddress("glBindAttribLocation");
+	gl->BindBuffer = (glBindBufferPROC)glXGetProcAddress("glBindBuffer");
+	gl->BindBufferRange = (glBindBufferRangePROC)glXGetProcAddress("glBindBufferRange");
+	gl->BindFramebuffer = (glBindFramebufferPROC)glXGetProcAddress("glBindFramebuffer");
+	gl->BindRenderbuffer = (glBindRenderbufferPROC)glXGetProcAddress("glBindRenderbuffer");
+	gl->BindTexture = (glBindTexturePROC)glXGetProcAddress("glBindTexture");
+	gl->BindVertexArray = (glBindVertexArrayPROC)glXGetProcAddress("glBindVertexArray");
+	gl->BlendFunc = (glBlendFuncPROC)glXGetProcAddress("glBlendFunc");
+	gl->BlendFuncSeparate = (glBlendFuncSeparatePROC)glXGetProcAddress("glBlendFuncSeparate");
+	gl->BufferData = (glBufferDataPROC)glXGetProcAddress("glBufferData");
+	gl->CheckFramebufferStatus = (glCheckFramebufferStatusPROC)glXGetProcAddress("glCheckFramebufferStatus");
+	gl->ColorMask = (glColorMaskPROC)glXGetProcAddress("glColorMask");
+	gl->CompileShader = (glCompileShaderPROC)glXGetProcAddress("glCompileShader");
+	gl->CreateProgram = (glCreateProgramPROC)glXGetProcAddress("glCreateProgram");
+	gl->CreateShader = (glCreateShaderPROC)glXGetProcAddress("glCreateShader");
+	gl->CullFace = (glCullFacePROC)glXGetProcAddress("glCullFace");
+	gl->DeleteBuffers = (glDeleteBuffersPROC)glXGetProcAddress("glDeleteBuffers");
+	gl->DeleteFramebuffers = (glDeleteFramebuffersPROC)glXGetProcAddress("glDeleteFramebuffers");
+	gl->DeleteProgram = (glDeleteProgramPROC)glXGetProcAddress("glDeleteProgram");
+	gl->DeleteRenderbuffers = (glDeleteRenderbuffersPROC)glXGetProcAddress("glDeleteRenderbuffers");
+	gl->DeleteShader = (glDeleteShaderPROC)glXGetProcAddress("glDeleteShader");
+	gl->DeleteTextures = (glDeleteTexturesPROC)glXGetProcAddress("glDeleteTextures");
+	gl->DeleteVertexArrays = (glDeleteVertexArraysPROC)glXGetProcAddress("glDeleteVertexArrays");
+	gl->DetachShader = (glDetachShaderPROC)glXGetProcAddress("glDetachShader");
+	gl->Disable = (glDisablePROC)glXGetProcAddress("glDisable");
+	gl->DisableVertexAttribArray = (glDisableVertexAttribArrayPROC)glXGetProcAddress("glDisableVertexAttribArray");
+	gl->DrawArrays = (glDrawArraysPROC)glXGetProcAddress("glDrawArrays");
+	gl->Enable = (glEnablePROC)glXGetProcAddress("glEnable");
+	gl->EnableVertexAttribArray = (glEnableVertexAttribArrayPROC)glXGetProcAddress("glEnableVertexAttribArray");
+	gl->Finish = (glFinishPROC)glXGetProcAddress("glFinish");
+	gl->Flush = (glFlushPROC)glXGetProcAddress("glFlush");
+	gl->FramebufferRenderbuffer = (glFramebufferRenderbufferPROC)glXGetProcAddress("glFramebufferRenderbuffer");
+	gl->FramebufferTexture2D = (glFramebufferTexture2DPROC)glXGetProcAddress("glFramebufferTexture2D");
+	gl->FrontFace = (glFrontFacePROC)glXGetProcAddress("glFrontFace");
+	gl->GenBuffers = (glGenBuffersPROC)glXGetProcAddress("glGenBuffers");
+	gl->GenFramebuffers = (glGenFramebuffersPROC)glXGetProcAddress("glGenFramebuffers");
+	gl->GenRenderbuffers = (glGenRenderbuffersPROC)glXGetProcAddress("glGenRenderbuffers");
+	gl->GenTextures = (glGenTexturesPROC)glXGetProcAddress("glGenTextures");
+	gl->GenVertexArrays = (glGenVertexArraysPROC)glXGetProcAddress("glGenVertexArrays");
+	gl->GenerateMipmap = (glGenerateMipmapPROC)glXGetProcAddress("glGenerateMipmap");
+	gl->GetError = (glGetErrorPROC)glXGetProcAddress("glGetError");
+	gl->GetIntegerv = (glGetIntegervPROC)glXGetProcAddress("glGetIntegerv");
+	gl->GetProgramiv = (glGetProgramivPROC)glXGetProcAddress("glGetProgramiv");
+	gl->GetProgramInfoLog = (glGetProgramInfoLogPROC)glXGetProcAddress("glGetProgramInfoLog");
+	gl->GetShaderiv = (glGetShaderivPROC)glXGetProcAddress("glGetShaderiv");
+	gl->GetShaderInfoLog = (glGetShaderInfoLogPROC)glXGetProcAddress("glGetShaderInfoLog");
+	gl->GetUniformBlockIndex = (glGetUniformBlockIndexPROC)glXGetProcAddress("glGetUniformBlockIndex");
+	gl->GetUniformLocation = (glGetUniformLocationPROC)glXGetProcAddress("glGetUniformLocation");
+	gl->LinkProgram = (glLinkProgramPROC)glXGetProcAddress("glLinkProgram");
+	gl->PixelStorei = (glPixelStoreiPROC)glXGetProcAddress("glPixelStorei");
+	gl->RenderbufferStorage = (glRenderbufferStoragePROC)glXGetProcAddress("glRenderbufferStorage");
+	gl->ShaderSource = (glShaderSourcePROC)glXGetProcAddress("glShaderSource");
+	gl->StencilFunc = (glStencilFuncPROC)glXGetProcAddress("glStencilFunc");
+	gl->StencilMask = (glStencilMaskPROC)glXGetProcAddress("glStencilMask");
+	gl->StencilOp = (glStencilOpPROC)glXGetProcAddress("glStencilOp");
+	gl->StencilOpSeparate = (glStencilOpSeparatePROC)glXGetProcAddress("glStencilOpSeparate");
+	gl->TexImage2D = (glTexImage2DPROC)glXGetProcAddress("glTexImage2D");
+	gl->TexParameteri = (glTexParameteriPROC)glXGetProcAddress("glTexParameteri");
+	gl->TexSubImage2D = (glTexSubImage2DPROC)glXGetProcAddress("glTexSubImage2D");
+	gl->Uniform1i = (glUniform1iPROC)glXGetProcAddress("glUniform1i");
+	gl->Uniform2fv = (glUniform2fvPROC)glXGetProcAddress("glUniform2fv");
+	gl->Uniform4fv = (glUniform4fvPROC)glXGetProcAddress("glUniform4fv");
+	gl->UniformBlockBinding = (glUniformBlockBindingPROC)glXGetProcAddress("glUniformBlockBinding");
+	gl->UseProgram = (glUseProgramPROC)glXGetProcAddress("glUseProgram");
+	gl->VertexAttribPointer = (glVertexAttribPointerPROC)glXGetProcAddress("glVertexAttribPointer");
 
 	memset(&params, 0, sizeof(params));
 	params.renderCreate = glnvg__renderCreate;
@@ -1888,7 +1857,6 @@ NVGcontext* EXT(nvgCreate)(JNIEnv* env, int flags)
 	return ctx;
 
 error:
-	// 'gl' is freed by nvgDeleteInternal.
 	if (ctx != NULL) nvgDeleteInternal(ctx);
 	return NULL;
 }
@@ -1921,4 +1889,4 @@ GLuint EXT(nvglImageHandle)(NVGcontext* ctx, int image)
 	return tex->tex;
 }
 
-#endif /* NANOVG_GL_IMPLEMENTATION */
+#endif
