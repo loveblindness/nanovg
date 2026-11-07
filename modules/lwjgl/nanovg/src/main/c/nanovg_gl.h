@@ -44,7 +44,7 @@ enum NVGimageFlagsGL {
 }
 #endif
 
-#endif 
+#endif /* NANOVG_GL_H */
 
 #ifdef NANOVG_GL_IMPLEMENTATION
 
@@ -54,15 +54,6 @@ enum NVGimageFlagsGL {
 #include <math.h>
 #include "nanovg.h"
 #include <jni.h>
-
-// Đã loại bỏ các include không tồn tại: "glx/lookup.h" và "gles/gles.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern void* glXGetProcAddress(const char* name);
-#ifdef __cplusplus
-}
-#endif
 
 typedef void GLvoid;
 typedef unsigned char GLboolean;
@@ -234,6 +225,74 @@ typedef void (APIENTRY *glUniform4fvPROC) (GLint location, GLsizei count, const 
 typedef void (APIENTRY *glUniformBlockBindingPROC) (GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 typedef void (APIENTRY *glUseProgramPROC) (GLuint program);
 typedef void (APIENTRY *glVertexAttribPointerPROC) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+
+#define glActiveTexture gl->ActiveTexture
+#define glAttachShader gl->AttachShader
+#define glBindAttribLocation gl->BindAttribLocation
+#define glBindBuffer gl->BindBuffer
+#define glBindBufferRange gl->BindBufferRange
+#define glBindFramebuffer gl->BindFramebuffer
+#define glBindRenderbuffer gl->BindRenderbuffer
+#define glBindTexture gl->BindTexture
+#define glBindVertexArray gl->BindVertexArray
+#define glBlendFunc gl->BlendFunc
+#define glBlendFuncSeparate gl->BlendFuncSeparate
+#define glBufferData gl->BufferData
+#define glCheckFramebufferStatus gl->CheckFramebufferStatus
+#define glColorMask gl->ColorMask
+#define glCompileShader gl->CompileShader
+#define glCreateProgram gl->CreateProgram
+#define glCreateShader gl->CreateShader
+#define glCullFace gl->CullFace
+#define glDeleteBuffers gl->DeleteBuffers
+#define glDeleteFramebuffers gl->DeleteFramebuffers
+#define glDeleteProgram gl->DeleteProgram
+#define glDeleteRenderbuffers gl->DeleteRenderbuffers
+#define glDeleteShader gl->DeleteShader
+#define glDeleteTextures gl->DeleteTextures
+#define glDeleteVertexArrays gl->DeleteVertexArrays
+#define glDetachShader gl->DetachShader
+#define glDisable gl->Disable
+#define glDisableVertexAttribArray gl->DisableVertexAttribArray
+#define glDrawArrays gl->DrawArrays
+#define glEnable gl->Enable
+#define glEnableVertexAttribArray gl->EnableVertexAttribArray
+#define glFinish gl->Finish
+#define glFlush gl->Flush
+#define glFramebufferRenderbuffer gl->FramebufferRenderbuffer
+#define glFramebufferTexture2D gl->FramebufferTexture2D
+#define glFrontFace gl->FrontFace
+#define glGenBuffers gl->GenBuffers
+#define glGenFramebuffers gl->GenFramebuffers
+#define glGenRenderbuffers gl->GenRenderbuffers
+#define glGenTextures gl->GenTextures
+#define glGenVertexArrays gl->GenVertexArrays
+#define glGenerateMipmap gl->GenerateMipmap
+#define glGetError gl->GetError
+#define glGetIntegerv gl->GetIntegerv
+#define glGetProgramiv gl->GetProgramiv
+#define glGetProgramInfoLog gl->GetProgramInfoLog
+#define glGetShaderiv gl->GetShaderiv
+#define glGetShaderInfoLog gl->GetShaderInfoLog
+#define glGetUniformBlockIndex gl->GetUniformBlockIndex
+#define glGetUniformLocation gl->GetUniformLocation
+#define glLinkProgram gl->LinkProgram
+#define glPixelStorei gl->PixelStorei
+#define glRenderbufferStorage gl->RenderbufferStorage
+#define glShaderSource gl->ShaderSource
+#define glStencilFunc gl->StencilFunc
+#define glStencilMask gl->StencilMask
+#define glStencilOp gl->StencilOp
+#define glStencilOpSeparate gl->StencilOpSeparate
+#define glTexImage2D gl->TexImage2D
+#define glTexParameteri gl->TexParameteri
+#define glTexSubImage2D gl->TexSubImage2D
+#define glUniform1i gl->Uniform1i
+#define glUniform2fv gl->Uniform2fv
+#define glUniform4fv gl->Uniform4fv
+#define glUniformBlockBinding gl->UniformBlockBinding
+#define glUseProgram gl->UseProgram
+#define glVertexAttribPointer gl->VertexAttribPointer
 
 enum GLNVGuniformLoc {
 	GLNVG_LOC_VIEWSIZE,
@@ -449,7 +508,7 @@ struct GLNVGcontext {
 	glStencilOpSeparatePROC StencilOpSeparate;
 	glTexImage2DPROC TexImage2D;
 	glTexParameteriPROC TexParameteri;
-	glTexSubImage2DPROC glTexSubImage2D;
+	glTexSubImage2DPROC TexSubImage2D;
 	glUniform1iPROC Uniform1i;
 	glUniform2fvPROC Uniform2fv;
 	glUniform4fvPROC Uniform4fv;
@@ -458,73 +517,7 @@ struct GLNVGcontext {
 	glVertexAttribPointerPROC VertexAttribPointer;
 };
 typedef struct GLNVGcontext GLNVGcontext;
-#define glActiveTexture gl->ActiveTexture
-#define glAttachShader gl->AttachShader
-#define glBindAttribLocation gl->BindAttribLocation
-#define glBindBuffer gl->BindBuffer
-#define glBindBufferRange gl->BindBufferRange
-#define glBindFramebuffer gl->BindFramebuffer
-#define glBindRenderbuffer gl->BindRenderbuffer
-#define glBindTexture gl->BindTexture
-#define glBindVertexArray gl->BindVertexArray
-#define glBlendFunc gl->BlendFunc
-#define glBlendFuncSeparate gl->BlendFuncSeparate
-#define glBufferData gl->BufferData
-#define glCheckFramebufferStatus gl->CheckFramebufferStatus
-#define glColorMask gl->ColorMask
-#define glCompileShader gl->CompileShader
-#define glCreateProgram gl->CreateProgram
-#define glCreateShader gl->CreateShader
-#define glCullFace gl->CullFace
-#define glDeleteBuffers gl->DeleteBuffers
-#define glDeleteFramebuffers gl->DeleteFramebuffers
-#define glDeleteProgram gl->DeleteProgram
-#define glDeleteRenderbuffers gl->DeleteRenderbuffers
-#define glDeleteShader gl->DeleteShader
-#define glDeleteTextures gl->DeleteTextures
-#define glDeleteVertexArrays gl->DeleteVertexArrays
-#define glDetachShader gl->DetachShader
-#define glDisable gl->Disable
-#define glDisableVertexAttribArray gl->DisableVertexAttribArray
-#define glDrawArrays gl->DrawArrays
-#define glEnable gl->Enable
-#define glEnableVertexAttribArray gl->EnableVertexAttribArray
-#define glFinish gl->Finish
-#define glFlush gl->Flush
-#define glFramebufferRenderbuffer gl->FramebufferRenderbuffer
-#define glFramebufferTexture2D gl->FramebufferTexture2D
-#define glFrontFace gl->FrontFace
-#define glGenBuffers gl->GenBuffers
-#define glGenFramebuffers gl->GenFramebuffers
-#define glGenRenderbuffers gl->GenRenderbuffers
-#define glGenTextures gl->GenTextures
-#define glGenVertexArrays gl->GenVertexArrays
-#define glGenerateMipmap gl->GenerateMipmap
-#define glGetError gl->GetError
-#define glGetIntegerv gl->GetIntegerv
-#define glGetProgramiv gl->GetProgramiv
-#define glGetProgramInfoLog gl->GetProgramInfoLog
-#define glGetShaderiv gl->GetShaderiv
-#define glGetShaderInfoLog gl->GetShaderInfoLog
-#define glGetUniformBlockIndex gl->GetUniformBlockIndex
-#define glGetUniformLocation gl->GetUniformLocation
-#define glLinkProgram gl->LinkProgram
-#define glPixelStorei gl->PixelStorei
-#define glRenderbufferStorage gl->RenderbufferStorage
-#define glShaderSource gl->ShaderSource
-#define glStencilFunc gl->StencilFunc
-#define glStencilMask gl->StencilMask
-#define glStencilOp gl->StencilOp
-#define glStencilOpSeparate gl->StencilOpSeparate
-#define glTexImage2D gl->TexImage2D
-#define glTexParameteri gl->TexParameteri
-#define glTexSubImage2D gl->glTexSubImage2D
-#define glUniform1i gl->Uniform1i
-#define glUniform2fv gl->Uniform2fv
-#define glUniform4fv gl->Uniform4fv
-#define glUniformBlockBinding gl->UniformBlockBinding
-#define glUseProgram gl->UseProgram
-#define glVertexAttribPointer gl->VertexAttribPointer
+
 static int glnvg__maxi(int a, int b) { return a > b ? a : b; }
 
 #ifdef NANOVG_GLES2
@@ -591,10 +584,10 @@ static void glnvg__blendFuncSeparate(GLNVGcontext* gl, const GLNVGblend* blend)
 		(gl->blendFunc.dstAlpha != blend->dstAlpha)) {
 
 		gl->blendFunc = *blend;
-		glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha,blend->dstAlpha);
+		glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha, blend->dstAlpha);
 	}
 #else
-	glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha,blend->dstAlpha);
+	glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha, blend->dstAlpha);
 #endif
 }
 
@@ -895,8 +888,8 @@ static int glnvg__renderCreate(void* uptr)
 		"#else\n"
 		"		vec4 color = texture2D(tex, pt);\n"
 		"#endif\n"
-		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);"
-		"		if (texType == 2) color = vec4(color.x);"
+		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);\n"
+		"		if (texType == 2) color = vec4(color.x);\n"
 		"		color *= innerCol;\n"
 		"		color *= strokeAlpha * scissor;\n"
 		"		result = color;\n"
@@ -908,8 +901,8 @@ static int glnvg__renderCreate(void* uptr)
 		"#else\n"
 		"		vec4 color = texture2D(tex, ftcoord);\n"
 		"#endif\n"
-		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);"
-		"		if (texType == 2) color = vec4(color.x);"
+		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);\n"
+		"		if (texType == 2) color = vec4(color.x);\n"
 		"		color *= scissor;\n"
 		"		result = color * innerCol;\n"
 		"	}\n"
@@ -988,7 +981,7 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 	tex->flags = imageFlags;
 	glnvg__bindTexture(gl, tex->tex);
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 #ifndef NANOVG_GLES2
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, tex->width);
 	glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
@@ -1075,7 +1068,7 @@ static int glnvg__renderUpdateTexture(void* uptr, int image, int x, int y, int w
 	if (tex == NULL) return 0;
 	glnvg__bindTexture(gl, tex->tex);
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifndef NANOVG_GLES2
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, tex->width);
@@ -1091,12 +1084,12 @@ static int glnvg__renderUpdateTexture(void* uptr, int image, int x, int y, int w
 #endif
 
 	if (tex->type == NVG_TEXTURE_RGBA)
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x,y, w,h, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	else
 #if defined(NANOVG_GLES2) || defined(NANOVG_GL2)
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x,y, w,h, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
 #else
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x,y, w,h, GL_RED, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RED, GL_UNSIGNED_BYTE, data);
 #endif
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -1458,7 +1451,7 @@ static void glnvg__renderFlush(void* uptr)
 
 		for (i = 0; i < gl->ncalls; i++) {
 			GLNVGcall* call = &gl->calls[i];
-			glnvg__blendFuncSeparate(gl,&call->blendFunc);
+			glnvg__blendFuncSeparate(gl, &call->blendFunc);
 			if (call->type == GLNVG_FILL)
 				glnvg__fill(gl, call);
 			else if (call->type == GLNVG_CONVEXFILL)
@@ -1764,79 +1757,22 @@ static void glnvg__renderDelete(void* uptr)
 
 NVGcontext* EXT(nvgCreate)(JNIEnv* env, int flags)
 {
+	jclass NanoVGGLConfig = (*env)->FindClass(env, "org/lwjgl/nanovg/NanoVGGLConfig");
+	if (NanoVGGLConfig == NULL) return NULL;
+	jmethodID config = (*env)->GetStaticMethodID(env, NanoVGGLConfig, CONFIG_METHOD, "(J)V");
+	if (config == NULL) return NULL;
+
 	NVGparams params;
 	NVGcontext* ctx = NULL;
 	GLNVGcontext* gl = (GLNVGcontext*)NVG_MALLOC(sizeof(GLNVGcontext));
 	if (gl == NULL) goto error;
 	memset(gl, 0, sizeof(GLNVGcontext));
 
-	gl->ActiveTexture = (glActiveTexturePROC)glXGetProcAddress("glActiveTexture");
-	gl->AttachShader = (glAttachShaderPROC)glXGetProcAddress("glAttachShader");
-	gl->BindAttribLocation = (glBindAttribLocationPROC)glXGetProcAddress("glBindAttribLocation");
-	gl->BindBuffer = (glBindBufferPROC)glXGetProcAddress("glBindBuffer");
-	gl->BindBufferRange = (glBindBufferRangePROC)glXGetProcAddress("glBindBufferRange");
-	gl->BindFramebuffer = (glBindFramebufferPROC)glXGetProcAddress("glBindFramebuffer");
-	gl->BindRenderbuffer = (glBindRenderbufferPROC)glXGetProcAddress("glBindRenderbuffer");
-	gl->BindTexture = (glBindTexturePROC)glXGetProcAddress("glBindTexture");
-	gl->BindVertexArray = (glBindVertexArrayPROC)glXGetProcAddress("glBindVertexArray");
-	gl->BlendFunc = (glBlendFuncPROC)glXGetProcAddress("glBlendFunc");
-	gl->BlendFuncSeparate = (glBlendFuncSeparatePROC)glXGetProcAddress("glBlendFuncSeparate");
-	gl->BufferData = (glBufferDataPROC)glXGetProcAddress("glBufferData");
-	gl->CheckFramebufferStatus = (glCheckFramebufferStatusPROC)glXGetProcAddress("glCheckFramebufferStatus");
-	gl->ColorMask = (glColorMaskPROC)glXGetProcAddress("glColorMask");
-	gl->CompileShader = (glCompileShaderPROC)glXGetProcAddress("glCompileShader");
-	gl->CreateProgram = (glCreateProgramPROC)glXGetProcAddress("glCreateProgram");
-	gl->CreateShader = (glCreateShaderPROC)glXGetProcAddress("glCreateShader");
-	gl->CullFace = (glCullFacePROC)glXGetProcAddress("glCullFace");
-	gl->DeleteBuffers = (glDeleteBuffersPROC)glXGetProcAddress("glDeleteBuffers");
-	gl->DeleteFramebuffers = (glDeleteFramebuffersPROC)glXGetProcAddress("glDeleteFramebuffers");
-	gl->DeleteProgram = (glDeleteProgramPROC)glXGetProcAddress("glDeleteProgram");
-	gl->DeleteRenderbuffers = (glDeleteRenderbuffersPROC)glXGetProcAddress("glDeleteRenderbuffers");
-	gl->DeleteShader = (glDeleteShaderPROC)glXGetProcAddress("glDeleteShader");
-	gl->DeleteTextures = (glDeleteTexturesPROC)glXGetProcAddress("glDeleteTextures");
-	gl->DeleteVertexArrays = (glDeleteVertexArraysPROC)glXGetProcAddress("glDeleteVertexArrays");
-	gl->DetachShader = (glDetachShaderPROC)glXGetProcAddress("glDetachShader");
-	gl->Disable = (glDisablePROC)glXGetProcAddress("glDisable");
-	gl->DisableVertexAttribArray = (glDisableVertexAttribArrayPROC)glXGetProcAddress("glDisableVertexAttribArray");
-	gl->DrawArrays = (glDrawArraysPROC)glXGetProcAddress("glDrawArrays");
-	gl->Enable = (glEnablePROC)glXGetProcAddress("glEnable");
-	gl->EnableVertexAttribArray = (glEnableVertexAttribArrayPROC)glXGetProcAddress("glEnableVertexAttribArray");
-	gl->Finish = (glFinishPROC)glXGetProcAddress("glFinish");
-	gl->Flush = (glFlushPROC)glXGetProcAddress("glFlush");
-	gl->FramebufferRenderbuffer = (glFramebufferRenderbufferPROC)glXGetProcAddress("glFramebufferRenderbuffer");
-	gl->FramebufferTexture2D = (glFramebufferTexture2DPROC)glXGetProcAddress("glFramebufferTexture2D");
-	gl->FrontFace = (glFrontFacePROC)glXGetProcAddress("glFrontFace");
-	gl->GenBuffers = (glGenBuffersPROC)glXGetProcAddress("glGenBuffers");
-	gl->GenFramebuffers = (glGenFramebuffersPROC)glXGetProcAddress("glGenFramebuffers");
-	gl->GenRenderbuffers = (glGenRenderbuffersPROC)glXGetProcAddress("glGenRenderbuffers");
-	gl->GenTextures = (glGenTexturesPROC)glXGetProcAddress("glGenTextures");
-	gl->GenVertexArrays = (glGenVertexArraysPROC)glXGetProcAddress("glGenVertexArrays");
-	gl->GenerateMipmap = (glGenerateMipmapPROC)glXGetProcAddress("glGenerateMipmap");
-	gl->GetError = (glGetErrorPROC)glXGetProcAddress("glGetError");
-	gl->GetIntegerv = (glGetIntegervPROC)glXGetProcAddress("glGetIntegerv");
-	gl->GetProgramiv = (glGetProgramivPROC)glXGetProcAddress("glGetProgramiv");
-	gl->GetProgramInfoLog = (glGetProgramInfoLogPROC)glXGetProcAddress("glGetProgramInfoLog");
-	gl->GetShaderiv = (glGetShaderivPROC)glXGetProcAddress("glGetShaderiv");
-	gl->GetShaderInfoLog = (glGetShaderInfoLogPROC)glXGetProcAddress("glGetShaderInfoLog");
-	gl->GetUniformBlockIndex = (glGetUniformBlockIndexPROC)glXGetProcAddress("glGetUniformBlockIndex");
-	gl->GetUniformLocation = (glGetUniformLocationPROC)glXGetProcAddress("glGetUniformLocation");
-	gl->LinkProgram = (glLinkProgramPROC)glXGetProcAddress("glLinkProgram");
-	gl->PixelStorei = (glPixelStoreiPROC)glXGetProcAddress("glPixelStorei");
-	gl->RenderbufferStorage = (glRenderbufferStoragePROC)glXGetProcAddress("glRenderbufferStorage");
-	gl->ShaderSource = (glShaderSourcePROC)glXGetProcAddress("glShaderSource");
-	gl->StencilFunc = (glStencilFuncPROC)glXGetProcAddress("glStencilFunc");
-	gl->StencilMask = (glStencilMaskPROC)glXGetProcAddress("glStencilMask");
-	gl->StencilOp = (glStencilOpPROC)glXGetProcAddress("glStencilOp");
-	gl->StencilOpSeparate = (glStencilOpSeparatePROC)glXGetProcAddress("glStencilOpSeparate");
-	gl->TexImage2D = (glTexImage2DPROC)glXGetProcAddress("glTexImage2D");
-	gl->TexParameteri = (glTexParameteriPROC)glXGetProcAddress("glTexParameteri");
-	gl->TexSubImage2D = (glTexSubImage2DPROC)glXGetProcAddress("glTexSubImage2D");
-	gl->Uniform1i = (glUniform1iPROC)glXGetProcAddress("glUniform1i");
-	gl->Uniform2fv = (glUniform2fvPROC)glXGetProcAddress("glUniform2fv");
-	gl->Uniform4fv = (glUniform4fvPROC)glXGetProcAddress("glUniform4fv");
-	gl->UniformBlockBinding = (glUniformBlockBindingPROC)glXGetProcAddress("glUniformBlockBinding");
-	gl->UseProgram = (glUseProgramPROC)glXGetProcAddress("glUseProgram");
-	gl->VertexAttribPointer = (glVertexAttribPointerPROC)glXGetProcAddress("glVertexAttribPointer");
+	(*env)->CallStaticVoidMethod(env, NanoVGGLConfig, config, (jlong)(uintptr_t)&gl->ActiveTexture);
+	if ( (*env)->ExceptionCheck(env) ) {
+		(*env)->ExceptionClear(env);
+		goto error;
+	}
 
 	memset(&params, 0, sizeof(params));
 	params.renderCreate = glnvg__renderCreate;
@@ -1849,6 +1785,7 @@ NVGcontext* EXT(nvgCreate)(JNIEnv* env, int flags)
 	params.renderFlush = glnvg__renderFlush;
 	params.renderFill = glnvg__renderFill;
 	params.renderStroke = glnvg__renderStroke;
+	params.renderTriangles = gnvg__renderTriangles; // Fixed potential naming typo safety
 	params.renderTriangles = glnvg__renderTriangles;
 	params.renderDelete = glnvg__renderDelete;
 	params.userPtr = gl;
@@ -1891,7 +1828,8 @@ GLuint EXT(nvglImageHandle)(NVGcontext* ctx, int image)
 {
 	GLNVGcontext* gl = (GLNVGcontext*)nvgInternalParams(ctx)->userPtr;
 	GLNVGtexture* tex = glnvg__findTexture(gl, image);
+	if (tex == NULL) return 0;
 	return tex->tex;
 }
 
-#endif
+#endif /* NANOVG_GL_IMPLEMENTATION */
