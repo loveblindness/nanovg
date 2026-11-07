@@ -518,7 +518,7 @@ typedef struct GLNVGcontext GLNVGcontext;
 #define glStencilOpSeparate gl->StencilOpSeparate
 #define glTexImage2D gl->TexImage2D
 #define glTexParameteri gl->TexParameteri
-#define glTexSubImage2D gl->TexSubImage2D
+#define glTexSubImage2D gl->glTexSubImage2D
 #define glUniform1i gl->Uniform1i
 #define glUniform2fv gl->Uniform2fv
 #define glUniform4fv gl->Uniform4fv
