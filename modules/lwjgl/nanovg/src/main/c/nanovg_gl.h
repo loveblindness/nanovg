@@ -525,7 +525,7 @@ typedef struct GLNVGcontext GLNVGcontext;
 #define glUniformBlockBinding gl->UniformBlockBinding
 #define glUseProgram gl->UseProgram
 #define glVertexAttribPointer gl->VertexAttribPointer
-#define image glImage // uhh
+#define image glImage 
 static int glnvg__maxi(int a, int b) { return a > b ? a : b; }
 
 #ifdef NANOVG_GLES2
