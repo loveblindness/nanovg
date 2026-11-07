@@ -525,7 +525,6 @@ typedef struct GLNVGcontext GLNVGcontext;
 #define glUniformBlockBinding gl->UniformBlockBinding
 #define glUseProgram gl->UseProgram
 #define glVertexAttribPointer gl->VertexAttribPointer
-#define image glImage 
 static int glnvg__maxi(int a, int b) { return a > b ? a : b; }
 
 #ifdef NANOVG_GLES2
@@ -1268,7 +1267,7 @@ static void glnvg__fill(GLNVGcontext* gl, GLNVGcall* call)
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	glnvg__setUniforms(gl, call->uniformOffset + gl->fragSize, gl->image);
+	glnvg__setUniforms(gl, call->uniformOffset + gl->fragSize, gl->glImage);
 	glnvg__checkError(gl, "fill fill");
 
 	if (gl->flags & NVG_ANTIALIAS) {
